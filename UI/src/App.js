@@ -21,6 +21,7 @@ import {
   createAssociatedTokenAccountIdempotentInstruction,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   withdrawWithheldTokensFromAccounts,
+  createWithdrawWithheldTokensFromAccountsInstruction,
   TOKEN_2022_PROGRAM_ID,
   getTransferFeeAmount,
   getMintLen,
@@ -305,23 +306,29 @@ const App = () => {
       setBalance(balance / 1e9); // Convert to SOL
     }
   };
+
   const collectTransferFee = async () => {
     setLoading(true); // Start loading state
+
     setMessage(""); // Clear previous messages
 
     const accountPublicKey = new PublicKey(window.solana.publicKey);
-    const deployedTokens = []; // Your deployed tokens array should be populated
 
     for (const token of deployedTokens) {
       const mint = new PublicKey(token.address);
 
       try {
         // Check for associated token account
+
         const associatedTokenAccount = getAssociatedTokenAddressSync(
           mint,
+
           accountPublicKey,
+
           false,
+
           TOKEN_2022_PROGRAM_ID,
+
           ASSOCIATED_TOKEN_PROGRAM_ID
         );
 
@@ -330,35 +337,50 @@ const App = () => {
         );
 
         // Create associated token account if it does not exist
+
         if (!destinationAccountExists) {
           const transaction = new Transaction().add(
             createAssociatedTokenAccountIdempotentInstruction(
               accountPublicKey,
+
               associatedTokenAccount,
+
               accountPublicKey,
+
               mint,
+
               TOKEN_2022_PROGRAM_ID,
+
               ASSOCIATED_TOKEN_PROGRAM_ID
             )
           );
 
-          // Send the transaction to create the associated token account
-          const signature = await window.solana.sendTransaction(
-            transaction,
-            payerWallet.payer
-          );
-          await connection.confirmTransaction(signature);
+          const { blockhash } = await connection.getLatestBlockhash();
+
+          transaction.recentBlockhash = blockhash;
+
+          transaction.feePayer = accountPublicKey; // Set the fee payer
+
+          const signature = await window.solana.signTransaction(transaction);
+
+          await connection.sendRawTransaction(signature.serialize());
+
+          await connection.confirmTransaction(signature, "processed");
         }
 
         // Fetch all accounts associated with the token mint
+
         const allAccounts = await connection.getProgramAccounts(
           TOKEN_2022_PROGRAM_ID,
+
           {
             commitment: "confirmed",
+
             filters: [
               {
                 memcmp: {
                   offset: 0,
+
                   bytes: mint.toString(),
                 },
               },
@@ -371,7 +393,9 @@ const App = () => {
         for (const accountInfo of allAccounts) {
           const account = unpackAccount(
             accountInfo.pubkey,
+
             accountInfo.account,
+
             TOKEN_2022_PROGRAM_ID
           );
 
@@ -384,25 +408,69 @@ const App = () => {
 
         if (accountsToWithdrawFrom.length === 0) {
           setMessage("No fees available to withdraw.");
+
           continue; // Continue to the next token
         }
 
-        const transactionSignature = await withdrawWithheldTokensFromAccounts(
-          connection,
-          payerWallet.payer,
-          mint,
-          associatedTokenAccount, // Use the created or existing token account
-          withdrawWithheldAuthority.payer,
-          [],
-          accountsToWithdrawFrom,
-          undefined,
-          TOKEN_2022_PROGRAM_ID
+        // Create the fee withdrawal transaction
+
+        const feeWithdrawTransaction = new Transaction().add(
+          createWithdrawWithheldTokensFromAccountsInstruction(
+            mint,
+
+            associatedTokenAccount,
+
+            accountPublicKey,
+
+            [],
+
+            accountsToWithdrawFrom,
+
+            TOKEN_2022_PROGRAM_ID
+          )
         );
 
-        console.log("Withdrawal Transaction Signature:", transactionSignature);
+        // Set the recent blockhash and fee payer
+
+        const { blockhash } = await connection.getLatestBlockhash();
+
+        feeWithdrawTransaction.recentBlockhash = blockhash;
+
+        feeWithdrawTransaction.feePayer = accountPublicKey;
+
+        // Sign the transaction with Phantom Wallet
+
+        const signedTransaction = await window.solana.signTransaction(
+          feeWithdrawTransaction
+        );
+
+        // Send the signed transaction for execution
+
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize()
+        );
+
+        await connection.confirmTransaction(signature, "processed");
+
+        console.log(
+          "Fees collected successfully! Transaction Signature:",
+          signature
+        );
+
         setMessage("Fees successfully withdrawn!");
+
+        // Optionally, you can open the explorer link to the transaction
+
+        setTimeout(() => {
+          window.open(
+            `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+
+            "_blank"
+          );
+        }, 100); // 100 milliseconds delay
       } catch (error) {
         console.error("Error collecting transfer fees:", error);
+
         setMessage("Error collecting transfer fees: " + error.message);
       }
     }
@@ -442,12 +510,12 @@ const App = () => {
           );
 
           const transferFeeAmount = getTransferFeeAmount(account);
-          console.log("Total Withheld Fee:", totalWithheldFee.toString()); // Use toString() for BigInt
+          //   console.log("Total Withheld Fee:", totalWithheldFee.toString()); // Use toString() for BigInt
 
           if (transferFeeAmount && transferFeeAmount.withheldAmount > 0) {
             // Ensure withheldAmount is also treated as BigInt
             totalWithheldFee += BigInt(transferFeeAmount.withheldAmount);
-            console.log("Withheld Amount:", transferFeeAmount.withheldAmount); // Log individual withheld amounts
+            // console.log("Withheld Amount:", transferFeeAmount.withheldAmount); // Log individual withheld amounts
           }
         }
       } catch (error) {
@@ -457,10 +525,10 @@ const App = () => {
     }
     const decimals = 9;
     setWithheldFee(totalWithheldFee.toString() / 10 ** decimals); // Update state with total as a string
-    console.log(
-      "Total Withheld Fee:",
-      totalWithheldFee.toString() / 10 ** decimals
-    ); // Log total withheld fee after loop
+    // console.log(
+    //   "Total Withheld Fee:",
+    //   totalWithheldFee.toString() / 10 ** decimals
+    // ); // Log total withheld fee after loop
   };
 
   // Burn Tokens
