@@ -1,41 +1,144 @@
 .App {
-  text-align: center;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  text-align: center; /* Center all text in the App */
+  margin: 20px; /* Margin for the main container */
 }
 
-.form-group {
-  margin: 20px 0;
+h2 {
+  font-size: 2em; /* Main title font size */
+  margin: 20px 0; /* Space around the title */
 }
 
-input {
-  padding: 10px;
-  margin: 5px;
-  width: 200px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+h3 {
+  font-size: 1.5em; /* Heading size for input containers */
+  margin: 10px 0; /* Space above and below headings */
 }
 
-button {
-  padding: 10px 20px;
-  margin: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.input-container {
+  margin: 20px 0; /* Space between input containers */
+}
+
+.input-container input {
+  width: 50%; /* Full width for inputs */
+  padding: 10px; /* Padding for input fields */
+  margin: 10px 0; /* Space above and below input fields */
+  border: 1px solid #ccc; /* Border style */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.input-container button {
+  width: 50%; /* Make button full-width */
+  max-width: 300px; /* Set a max width */
+  padding: 10px; /* Padding inside the button */
+  background-color: #0f69c9; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Cursor pointer on hover */
+  margin: 10px 0; /* Space above and below the button */
+  display: block; /* Block element for centering */
+  margin-left: auto; /* Center button horizontally */
+  margin-right: auto; /* Center button horizontally */
+}
+
+.input-container button:hover {
+  background-color:#1a3c61; /* Darker shade on hover */
+}
+
+/* Style for the Phantom Connect button to match input width */
+.phantom-connect-button {
+  width: 50%; /* Match input field width */
+  padding: 12px 10px; /* Adjust padding for more balanced spacing */
+  background-color: #0f69c9; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Cursor pointer on hover */
+  margin: 10px auto; /* Equal space above and below, and center button horizontally */
+  display: block; /* Block element for centering */
+  text-align: center; /* Center text */
+  line-height: 1.2em; /* Adjust line height to center the text vertically */
+}
+
+
+.message {
+  color: red; /* Error message color */
+  margin-top: 20px; /* Space above message */
+}
+.connect-button {
+  width: 50%; /* Same width as input fields */
+  max-width: 300px; /* Set a max width */
+  padding: 10px; /* Padding inside the button */
+  background-color: #0f69c9; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Cursor pointer on hover */
+  margin: 10px auto; /* Center button horizontally */
+  display: block; /* Make button a block element for centering */
+  font-size: 1em; /* Font size to match other buttons */
+}
+
+.connect-button:hover {
+  background-color: #1a3c61; /* Darker shade on hover */
+}
+.balance-display {
+  margin-left: 20px; /* Adds space between wallet and balance */
+  display: inline-block;
+}
+.fee-container {
+  position: absolute; /* Position relative to the page */
+  top: 75px; /* Increase top margin */
+  right: 80px; /* Increase right margin */
+  background-color: #0f69c9; /* Optional: Background color */
+  padding: 20px 40px; /* Optional: Padding for better appearance */
+  border-radius: 8px; /* Optional: Rounded corners */
+  box-shadow: 0 4px 8px rgba(9, 160, 219, 0.1); /* Optional: Box shadow */
+}
+
+.fee-info {
+  display: flex;
+  justify-content: space-between; /* Separates label and span */
+  align-items: center; /* Aligns label and span vertically */
+  margin-bottom: 10px;
+}
+
+
+.fee-container h3 {
+  margin-top: 0; 
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+
+.fee-info label {
   font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
 }
 
-.btn-connect {
-  background-color: #6c63ff;
-  color: white;
+.fee-info span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.fee-info span {
+  margin-left: 5px;
+}
+.claim-button {
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #150aaa; /* Background color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 15px 30px; /* Padding for button */
+  cursor: pointer; /* Cursor change on hover */
+  margin-top: 10px; /* Space above the button */
+  transition: background-color 0.3s; /* Smooth transition for hover */
 }
 
-.btn-create {
-  background-color: #28a745;
-  color: white;
-}
-
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.claim-button:hover {
+  background-color:  #1a3c61;
 }
